@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tennis Match Journal</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #0f0f0f;
+      color: #d4ffd4;
+      padding: 2rem;
+    }
+    h1 {
+      color: #9fff9f;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    textarea, input[type="text"], input[type="date"] {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #444;
+      background-color: #1e1e1e;
+      color: #d4ffd4;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      background-color: #1db954;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .entry {
+      background-color: #1a1a1a;
+      padding: 1rem;
+      margin-top: 1rem;
+      border-radius: 5px;
+      border: 1px solid #333;
+    }
+    .entry p {
+      margin: 0.5rem 0;
+    }
+    .search {
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎾 Tennis Match Journal</h1>
+
+  <form id="journalForm">
+    <label for="date">Date</label>
+    <input type="date" id="date" name="date" required />
+
+    <label for="opponent">Opponent (e.g., J. Doe)</label>
+    <input type="text" id="opponent" name="opponent" required />
+
+    <label for="result">Who Won</label>
+    <textarea id="result" name="result" required></textarea>
+
+    <label for="bad">What Went Bad</label>
+    <textarea id="bad" name="bad" required></textarea>
+
+    <label for="good">What Went Well</label>
+    <textarea id="good" name="good" required></textarea>
+
+    <label for="feeling">How I Felt</label>
+    <textarea id="feeling" name="feeling" required></textarea>
+
+    <label for="opponentPlay">How My Opponent Played</label>
+    <textarea id="opponentPlay" name="opponentPlay" required></textarea>
+
+    <label for="improvement">What to Improve</label>
+    <textarea id="improvement" name="improvement" required></textarea>
+
+    <button type="submit">Save Entry</button>
+  </form>
+
+  <div class="search">
+    <label for="search">Search by Date or Opponent:</label>
+    <input type="text" id="search" placeholder="e.g., 2025-07-25 or J. Doe" />
+  </div>
+
+  <div id="entries"></div>
+
+  <script>
+    const form = document.getElementById("journalForm");
+    const entriesContainer = document.getElementById("entries");
+    const searchInput = document.getElementById("search");
+
+    let entries = JSON.parse(localStorage.getItem("tennisJournal")) || [];
+
+    function saveEntries() {
+      localStorage.setItem("tennisJournal", JSON.stringify(entries));
+    }
+
+    function renderEntries(filtered = entries) {
+      entriesContainer.innerHTML = "";
+      if (filtered.length === 0) {
+        entriesContainer.innerHTML = "<p>No matches found.</p>";
+        return;
+      }
+      filtered.forEach(entry => {
+        const div = document.createElement("div");
+        div.className = "entry";
+        div.innerHTML = `
+          <p><strong>Date:</strong> ${entry.date}</p>
+          <p><strong>Opponent:</strong> ${entry.opponent}</p>
+          <p><strong>Result:</strong> ${entry.result}</p>
+          <p><strong>What Went Bad:</strong> ${entry.bad}</p>
+          <p><strong>What Went Well:</strong> ${entry.good}</p>
+          <p><strong>How I Felt:</strong> ${entry.feeling}</p>
+          <p><strong>Opponent Played:</strong> ${entry.opponentPlay}</p>
+          <p><strong>To Improve:</strong> ${entry.improvement}</p>
+        `;
+        entriesContainer.appendChild(div);
+      });
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const newEntry = {
+        date: form.date.value,
+        opponent: form.opponent.value,
+        result: form.result.value,
+        bad: form.bad.value,
+        good: form.good.value,
+        feeling: form.feeling.value,
+        opponentPlay: form.opponentPlay.value,
+        improvement: form.improvement.value
+      };
+      entries.push(newEntry);
+      saveEntries();
+      renderEntries();
+      form.reset();
+    });
+
+    searchInput.addEventListener("input", function () {
+      const query = this.value.toLowerCase();
+      const filtered = entries.filter(entry =>
+        entry.date.includes(query) ||
+        entry.opponent.toLowerCase().includes(query)
+      );
+      renderEntries(filtered);
+    });
+
+    renderEntries();
+  </script>
+</body>
+</html>
